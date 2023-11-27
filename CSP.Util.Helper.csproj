@@ -2,18 +2,49 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+
 	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
 	<LangVersion>11.0</LangVersion>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Utils For CSP</Title>
     <PackageId>CSP.Util.Helper</PackageId>
-    <Version>1.0.6</Version>
+    <Version>1.0.8</Version>
     <Authors>OKUCUK</Authors>
     <Description>Usefull methods for Synergy CSP, it have ServiAPIHelper, MssqlDataHelper,PDfHelper
 Use with Config Class or get Config from DataSource </Description>
     <Platforms>AnyCPU;x86;x64</Platforms>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/omer6167/CSP.Util.Helper</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Synergy; CSP; MssqlHelper;</PackageTags>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <PackAsTool>False</PackAsTool>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Optimize>False</Optimize>
   </PropertyGroup>
 
 	<ItemGroup>
@@ -36,6 +67,13 @@ Use with Config Class or get Config from DataSource </Description>
 		<PackageReference Include="Bimser.Synergy.ServiceAPI" Version="2.26.6" />
 		<PackageReference Include="DevExpress.AspNetCore.Reporting" Version="22.1.3" />
 		<PackageReference Include="DevExpress.CrossPlatform.Printing.DrawingEngine" Version="1.0.13" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 
