@@ -7,16 +7,15 @@ namespace CSP.Util.Helper
 {
     public class LogClass
     {
-        public LogClass(int id, string message, string error, string methodName, string project, string date)
+        public LogClass(int id, string message, string error = "undefined", string methodName = "", string project = "")
         {
             Id = id;
             Message = message;
             Error = error;
             MethodName = methodName;
             Project = project;
-            Date = date;
-        } 
-       
+        }
+
         public int Id { get; set; }
         public string Message { get; set; }
         public string Error { get; set; }
