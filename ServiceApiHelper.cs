@@ -23,8 +23,6 @@ namespace CSP.Util.Helper
     public static class ServiceApiHelper
     {
         private static string _webInterfaceUrl;
-        //private static string _userName { get; set; }
-        //private static string _password { get; set; }
 
         internal static string WebInterfaceUrl
         {
@@ -39,22 +37,7 @@ namespace CSP.Util.Helper
             }
         }
 
-        //public static LoginWithBasicAuthenticationParameters BasicCredentials
-        //{
-        //    get
-        //    {
-        //        return new LoginWithBasicAuthenticationParameters
-        //        {
-        //            DomainAddress = WebInterfaceUrl.Replace("/api/web/", ""),
-        //            Language = "tr-TR",
-        //            Username = _userName,
-        //            Password = _password,
-        //            RememberMe = false
-        //        };
-        //    }
-        //}
-
-        internal static LoginWithTokenAuthenticationParameters GetTokenCredential(Context context)
+       internal static LoginWithTokenAuthenticationParameters GetTokenCredential(Context context)
         {
             return new LoginWithTokenAuthenticationParameters()
             {

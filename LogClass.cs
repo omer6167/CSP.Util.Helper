@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+﻿using System.Data;
 
 namespace CSP.Util.Helper
 {
@@ -22,6 +19,19 @@ namespace CSP.Util.Helper
         public string Method { get; set; } = "";
         public string Project { get; set; } = "";
         public string Date { get; set; } = DateTime.Now.ToString("dd.MM.yyyy HH:mm");
+
+        public DataTable GetDataTable()
+        {
+            DataTable dt = new DataTable();
+
+            dt.Columns.Add("Id");
+            dt.Columns.Add("Message");
+            dt.Columns.Add("Error");
+            dt.Columns.Add("Project");
+            dt.Columns.Add("Date");
+
+            return dt; 
+        }
 
     }
 }
