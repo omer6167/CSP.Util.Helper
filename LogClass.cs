@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 
 namespace CSP.Util.Helper
 {
@@ -22,7 +23,7 @@ namespace CSP.Util.Helper
 
         public DataTable GetDataTable()
         {
-            DataTable dt = new DataTable();
+            DataTable dt = new DataTable("Log");
 
             dt.Columns.Add("Id");
             dt.Columns.Add("Message");

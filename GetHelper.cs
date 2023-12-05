@@ -1,5 +1,10 @@
-﻿using System.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
 using System.Data.SqlClient;
+using System.IO;
+using System.Linq;
 using Bimser.Framework.Web.Models;
 using Bimser.Synergy.Entities.DocumentManagement.Business.DTOs.Requests;
 using Bimser.Synergy.Entities.DocumentManagement.Business.DTOs.Responses;
@@ -28,7 +33,6 @@ namespace CSP.Util.Helper
 
                 throw new ArgumentNullException("Config Bilgileri Getirilemedi");
             }
-
         }
 
         /// <summary>
@@ -283,8 +287,6 @@ namespace CSP.Util.Helper
 
         private static void Log(Config config, string logJsonValue)
         {
-
-
             SQLExecute(@"INSERT INTO AI_LOG (LOGTEXT) VALUES(N'" + logJsonValue + "')", config._ConnStr);
         }
 
@@ -397,6 +399,22 @@ namespace CSP.Util.Helper
             {
                 con.Close();
             }
+        }
+        public static DataTable ToDataTable<T>(this IList<T> data)
+        {
+            PropertyDescriptorCollection properties =
+                TypeDescriptor.GetProperties(typeof(T));
+            DataTable table = new DataTable();
+            foreach (PropertyDescriptor prop in properties)
+                table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+            foreach (T item in data)
+            {
+                DataRow row = table.NewRow();
+                foreach (PropertyDescriptor prop in properties)
+                    row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
+                table.Rows.Add(row);
+            }
+            return table;
         }
 
 

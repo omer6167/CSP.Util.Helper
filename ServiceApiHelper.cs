@@ -14,7 +14,10 @@ using Bimser.Synergy.Entities.DocumentManagement.Business.DTOs.Requests;
 using Bimser.Synergy.Entities.DocumentManagement.Business.DTOs.Responses;
 using Bimser.Synergy.Entities.DocumentManagement.Business.Objects;
 using Bimser.CSP.Runtime.Common.Extensions;
-
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CSP.Util.Helper
 {
