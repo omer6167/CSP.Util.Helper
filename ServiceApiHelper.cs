@@ -81,6 +81,50 @@ namespace CSP.Util.Helper
             return await ServiceApi.WorkflowManager.Create(projectName, flowName, processId);
         }
 
+        public static async Task<WorkflowInstance> CreateProcess(Context context, string projectName, string flowName, long processId = 0)
+        {
+            ServiceAPI ServiceApi = GetServiceApiInstance(context);
+            return await ServiceApi.WorkflowManager.Create(projectName, flowName, processId);
+        }
+        async static Task StartFlowAsync(Context context, string processName, Dictionary<string, object> values, string userID, string flowName = "Flow1", string AnAkisId = "", Event id = null)
+        {
+            id ??= new Event() { Id = 4 };
+
+            WorkflowInstance process = CreateProcess(context, processName, flowName, 0).Result;
+            foreach (var item in values)
+            {
+                process.Variables[item.Key] = item.Value;
+            }
+
+            process.StartingEvent = id;
+            process.SetStarterUserByUserId(userID.ToInt64());
+
+            if (AnAkisId != "")
+                process.ParentProcessId = Convert.ToInt64(AnAkisId);
+
+            await process.SaveAndContinue();
+        }
+        static long StartFlow(Context context, string processName, Dictionary<string, object> values, string userID, string flowName = "Flow1", string AnAkisId = "", Event id = null)
+        {
+            id ??= new Event() { Id = 4 };
+
+            WorkflowInstance process = CreateProcess(context, processName, flowName, 0).Result;
+            foreach (var item in values)
+            {
+                process.Variables[item.Key] = item.Value;
+            }
+
+            process.StartingEvent = id;
+            process.SetStarterUserByUserId(userID.ToInt64());
+
+            if (AnAkisId != "")
+                process.ParentProcessId = Convert.ToInt64(AnAkisId);
+
+            process.SaveAndContinue();
+
+            return process.ProcessId;
+        }
+
         public static string GetLink(Context context, long processID, long requestID)
         {
             var serviceApi = GetServiceApiInstance(context);
