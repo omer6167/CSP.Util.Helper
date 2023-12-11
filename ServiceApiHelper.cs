@@ -18,6 +18,7 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using Bimser.CSP.FormControls.Extensions;
 
 namespace CSP.Util.Helper
 {
@@ -79,14 +80,8 @@ namespace CSP.Util.Helper
         {
             ServiceAPI ServiceApi = GetServiceApiInstance(context);
             return await ServiceApi.WorkflowManager.Create(projectName, flowName, processId);
-        }
-
-        public static async Task<WorkflowInstance> CreateProcess(Context context, string projectName, string flowName, long processId = 0)
-        {
-            ServiceAPI ServiceApi = GetServiceApiInstance(context);
-            return await ServiceApi.WorkflowManager.Create(projectName, flowName, processId);
-        }
-        async static Task StartFlowAsync(Context context, string processName, Dictionary<string, object> values, string userID, string flowName = "Flow1", string AnAkisId = "", Event id = null)
+        }        
+        public async static Task StartFlowAsync(Context context, string processName, Dictionary<string, object> values, string userID, string flowName = "Flow1", string AnAkisId = "", Event id = null)
         {
             id ??= new Event() { Id = 4 };
 
@@ -97,14 +92,14 @@ namespace CSP.Util.Helper
             }
 
             process.StartingEvent = id;
-            process.SetStarterUserByUserId(userID.ToInt64());
+            await process.SetStarterUserByUserId(userID.ToInt64());
 
             if (AnAkisId != "")
-                process.ParentProcessId = Convert.ToInt64(AnAkisId);
+                process.ParentProcessId = AnAkisId.ToInt64();
 
             await process.SaveAndContinue();
         }
-        static long StartFlow(Context context, string processName, Dictionary<string, object> values, string userID, string flowName = "Flow1", string AnAkisId = "", Event id = null)
+        public static long StartFlow(Context context, string processName, Dictionary<string, object> values, string userID, string flowName = "Flow1", string AnAkisId = "", Event id = null)
         {
             id ??= new Event() { Id = 4 };
 
