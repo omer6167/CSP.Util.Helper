@@ -333,8 +333,6 @@ namespace CSP.Util.Helper
             var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
             var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
 
-            flowPauser.FirstOrDefault();
-
 
             if (flowPauser.Any() == false)
                 throw new Exception("Üst akışı devam ettirmek için durdurucuda beklemesi lazım;" + processId + "-" + flowPauserName);

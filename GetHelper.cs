@@ -70,8 +70,13 @@ namespace CSP.Util.Helper
                 };
 
                 request.AddJsonBody(JsonConvert.SerializeObject(payload), ContentType.Json);
+                
 
                 var response = restClient.Execute(request, Method.Post);
+                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new Exception("Hatalı Request Veya Veri Getirilemedi");
+                }
 
                 return JsonConvert.DeserializeObject<T>(response.Content.ToString());
             }
@@ -225,7 +230,7 @@ namespace CSP.Util.Helper
         /// <param name="queryString"></param>
         /// <param name="ConStr"></param>
         /// <param name="prm"></param>
-        public static void SQLExecute(string queryString, string ConStr, Dictionary<string, string> prm = null) //,   CommandType sqltyp=CommandType.Text)
+        public static int SQLExecute(string queryString, string ConStr, Dictionary<string, string> prm = null) //,   CommandType sqltyp=CommandType.Text)
         {
             using (SqlConnection connection = new SqlConnection(ConStr))
             {
@@ -240,8 +245,10 @@ namespace CSP.Util.Helper
                 }
 
                 command.Connection.Open();
-                command.ExecuteNonQuery();
+                int effective = command.ExecuteNonQuery();
                 command.Connection.Close();
+
+                return effective;
             }
         }
 
@@ -251,7 +258,7 @@ namespace CSP.Util.Helper
         /// <param name="context"></param>
         /// <param name="queryString"></param>
         /// <param name="prm"></param>
-        public static void SQLExecute(Context context, string queryString, Dictionary<string, string> prm = null) //,   CommandType sqltyp=CommandType.Text)
+        public static int SQLExecute(Context context, string queryString, Dictionary<string, string> prm = null) //,   CommandType sqltyp=CommandType.Text)
         {
             Config config = GetConfig(context);
 
@@ -268,8 +275,10 @@ namespace CSP.Util.Helper
                 }
 
                 command.Connection.Open();
-                command.ExecuteNonQuery();
+                int effective = command.ExecuteNonQuery();
                 command.Connection.Close();
+
+                return effective;
             }
         }
 
