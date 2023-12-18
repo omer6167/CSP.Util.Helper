@@ -283,8 +283,8 @@ namespace CSP.Util.Helper
         }
 
         /// <summary>
-        /// Log To AI_LOG Table
-        /// CREATE TABLE dbo.AI_LOG ( ID INT IDENTITY(1,1), LOGTEXT NVARCHAR(MAX), CONSTRAINT PK_AI_LOG_ID PRIMARY KEY(ID) ) GO
+        /// Log To TBL_LOG Table
+        /// CREATE TABLE dbo.TBL_LOG ( ID INT IDENTITY(1,1), LOGTEXT NVARCHAR(MAX), CONSTRAINT PK_TBL_LOG_ID PRIMARY KEY(ID) ) GO
         /// </summary>
         /// <param name="logJsonValue"></param>
         public static void Log(Context context, string logJsonValue)
