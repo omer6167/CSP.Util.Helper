@@ -345,6 +345,34 @@ namespace CSP.Util.Helper
                 var continueResponse = await mainProcess.Continue();
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="processId"></param>
+        /// <param name="flowPauserName"></param>
+        /// <param name="projectName"></param>
+        /// <param name="id"></param>
+        /// <exception cref="Exception"></exception>
+        public static void AkisDevamEttir(Context context, long processId, string flowPauserName, string projectName, Event id)
+        {
+            var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
+            var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
+
+
+
+            if (flowPauser.Any() == false)
+                throw new Exception("Üst akışı devam ettirmek için durdurucuda beklemesi lazım;" + processId + "-" + flowPauserName);
+
+            else
+            {
+                var mainProcess = GetServiceApiInstance(context).WorkflowManager.Create(projectName, "Flow1", processId, flowPauser.FirstOrDefault().RequestId).Result;
+                mainProcess.StartingEvent = id;
+
+                var continueResponse = mainProcess.Continue().Result;
+                LogExtension.Warning(continueResponse, context);
+            }
+        }
     }
 }
 
