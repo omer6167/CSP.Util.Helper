@@ -64,7 +64,7 @@ namespace CSP.Util.Helper
 
             DataTable dt = GetHelper.GetSQLData(queryString: query, conStr: connString);
 
-            return dt.DataTableToClass<LogClass>();
+            return dt.ToClass<LogClass>();
         }
 
         public LogClass GetLogForId(string connString,long Id)
@@ -76,7 +76,7 @@ namespace CSP.Util.Helper
                 { "Id",Id.ToString() }
             });
 
-            return dt.DataTableToClass<LogClass>();
+            return dt.ToClass<LogClass>();
         }
 
 

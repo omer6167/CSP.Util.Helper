@@ -9,24 +9,24 @@ namespace CSP.Util.Helper
 {
     public static class Extension
     {
-        public static DataTable ToDataTable<T>(this IList<T> data)
-        {
-            PropertyDescriptorCollection properties =
-                TypeDescriptor.GetProperties(typeof(T));
-            DataTable table = new DataTable();
-            foreach (PropertyDescriptor prop in properties)
-                table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
-            foreach (T item in data)
-            {
-                DataRow row = table.NewRow();
-                foreach (PropertyDescriptor prop in properties)
-                    row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
-                table.Rows.Add(row);
-            }
-            return table;
-        }
+        //public static DataTable ToDataTable<T>(this IList<T> data)
+        //{
+        //    PropertyDescriptorCollection properties =
+        //        TypeDescriptor.GetProperties(typeof(T));
+        //    DataTable table = new DataTable();
+        //    foreach (PropertyDescriptor prop in properties)
+        //        table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+        //    foreach (T item in data)
+        //    {
+        //        DataRow row = table.NewRow();
+        //        foreach (PropertyDescriptor prop in properties)
+        //            row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
+        //        table.Rows.Add(row);
+        //    }
+        //    return table;
+        //}
 
-        public static DataTable ToDataTableWithJson<T>(this IList<T> list)
+        public static DataTable ToDataTable<T>(this IList<T> list)
         {
             string json = JsonConvert.SerializeObject(list);
             DataTable dt = JsonConvert.DeserializeObject<DataTable>(json);
@@ -34,7 +34,7 @@ namespace CSP.Util.Helper
             return dt;
         }
 
-        public static T DataTableToClass<T>(this DataTable dataTable)
+        public static T ToClass<T>(this DataTable dataTable)
         {
             string json = JsonConvert.SerializeObject(dataTable);
             T myClass = JsonConvert.DeserializeObject<T>(json);
