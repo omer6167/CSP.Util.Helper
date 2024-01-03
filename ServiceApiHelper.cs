@@ -333,7 +333,7 @@ namespace CSP.Util.Helper
         /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static async Task AkisDevamEttirAsync(Context context, long processId, string flowPauserName, string projectName, Event id)
+        public static async Task ContinueFlowAsync(Context context, long processId, string flowPauserName, string projectName, Event id)
         {
             var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
             var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
@@ -361,7 +361,7 @@ namespace CSP.Util.Helper
         /// <param name="id"></param>
         /// <param name="variables"></param>
         /// <exception cref="Exception"></exception>
-        public static void AkisDevamEttir(Context context, long processId, string flowPauserName, string projectName, Event id, Dictionary<string, string> variables = null)
+        public static void ContinueFlow(Context context, long processId, string flowPauserName, string projectName, Event id, Dictionary<string, string> variables = null)
         {
 
             var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
