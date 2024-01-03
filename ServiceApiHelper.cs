@@ -290,7 +290,9 @@ namespace CSP.Util.Helper
         /// <exception cref="Exception"></exception>
         public static List<T> ExecQuery<T>(Context context, string project, string query, object prm = null)
         {
-            var resp = GetServiceApiInstance(context).DataSourceManager.ExecuteQuery<T>(project, query, prm);
+            ServiceAPI service = GetServiceApiInstance(context);
+            
+            var resp = service.DataSourceManager.ExecuteQuery<T>(project, query, prm);
 
             if (resp.Result != null)
             {
@@ -305,6 +307,7 @@ namespace CSP.Util.Helper
                 return new List<T> { };
             }
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -319,6 +322,7 @@ namespace CSP.Util.Helper
             var resp = await GetServiceApiInstance(context).DataSourceManager.ExecuteQuery<T>(project, query, prm);
             return resp;
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -346,6 +350,7 @@ namespace CSP.Util.Helper
                 var continueResponse = await mainProcess.Continue();
             }
         }
+        
         /// <summary>
         /// 
         /// </summary>
@@ -354,25 +359,40 @@ namespace CSP.Util.Helper
         /// <param name="flowPauserName"></param>
         /// <param name="projectName"></param>
         /// <param name="id"></param>
+        /// <param name="variables"></param>
         /// <exception cref="Exception"></exception>
-        public static void AkisDevamEttir(Context context, long processId, string flowPauserName, string projectName, Event id)
+        public static void AkisDevamEttir(Context context, long processId, string flowPauserName, string projectName, Event id, Dictionary<string, string> variables = null)
         {
-            var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
-            var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
 
-
-
-            if (flowPauser.Any() == false)
+            if (CheckFlowPauser(context, processId, flowPauserName) == false)
                 throw new Exception("Üst akışı devam ettirmek için durdurucuda beklemesi lazım;" + processId + "-" + flowPauserName);
 
             else
             {
                 var mainProcess = GetServiceApiInstance(context).WorkflowManager.Create(projectName, "Flow1", processId, flowPauser.FirstOrDefault().RequestId).Result;
-                mainProcess.StartingEvent = id;
+                if (variables != null)
+                {
+                    foreach (var variable in variables)
+                    {
+                        mainProcess.Variables[variable.Key] = variable.Value;
+                    }
+                }
 
                 var continueResponse = mainProcess.Continue().Result;
                 LogExtension.Warning(continueResponse, context);
             }
+        }
+        public static bool CheckFlowPauser(Context context, long processId, string flowPauserName)
+        {
+            var flowRequests = ServiceApiHelper.GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
+            var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
+
+
+            if (flowPauser.Any() == true)
+                return true;
+            else
+                return false;
+
         }
     }
 }
