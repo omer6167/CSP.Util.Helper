@@ -360,7 +360,7 @@ namespace CSP.Util.Helper
         /// <param name="projectName"></param>
         /// <param name="id"></param>
         /// <param name="variables"></param>
-        /// <exception cref="Exception"></exception>
+        /// <exception cref="Exception"></exception> 
         public static void ContinueFlow(Context context, long processId, string flowPauserName, string projectName, Event id, Dictionary<string, string> variables = null)
         {
 
