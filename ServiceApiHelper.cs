@@ -364,8 +364,14 @@ namespace CSP.Util.Helper
         public static void AkisDevamEttir(Context context, long processId, string flowPauserName, string projectName, Event id, Dictionary<string, string> variables = null)
         {
 
-            if (CheckFlowPauser(context, processId, flowPauserName) == false)
+            var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
+            var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
+
+
+            //LogExtension.Warning(flowRequests.Result,context);
+            if (flowPauser.Any() == false)
                 throw new Exception("Üst akışı devam ettirmek için durdurucuda beklemesi lazım;" + processId + "-" + flowPauserName);
+
 
             else
             {
@@ -384,7 +390,7 @@ namespace CSP.Util.Helper
         }
         public static bool CheckFlowPauser(Context context, long processId, string flowPauserName)
         {
-            var flowRequests = ServiceApiHelper.GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
+            var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
             var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
 
 
