@@ -383,7 +383,8 @@ namespace CSP.Util.Helper
                         mainProcess.Variables[variable.Key] = variable.Value;
                     }
                 }
-
+                mainProcess.StartingEvent = id;
+                
                 var continueResponse = mainProcess.Continue().Result;
                 LogExtension.Warning(continueResponse, context);
             }
