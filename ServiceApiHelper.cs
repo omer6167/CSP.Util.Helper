@@ -365,7 +365,6 @@ namespace CSP.Util.Helper
         /// <param name="variables"></param>
         /// <exception cref="Exception"></exception> 
         public static void ContinueFlow(Context context, long processId, string flowPauserName, string projectName, Event id, Dictionary<string, string> variables = null)
-
         {
 
             var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
@@ -388,40 +387,10 @@ namespace CSP.Util.Helper
                     }
                 }
                 mainProcess.StartingEvent = id;
-                
+
                 var continueResponse = mainProcess.Continue().Result;
                 LogExtension.Warning(continueResponse, context);
             }
-        }
-        public static bool CheckFlowPauser(Context context, long processId, string flowPauserName)
-        {
-
-            var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
-            var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
-
-
-
-            //LogExtension.Warning(flowRequests.Result,context);
-            if (flowPauser.Any() == false)
-                throw new Exception("Üst akışı devam ettirmek için durdurucuda beklemesi lazım;" + processId + "-" + flowPauserName);
-
-
-            else
-            {
-                var mainProcess = GetServiceApiInstance(context).WorkflowManager.Create(projectName, "Flow1", processId, flowPauser.FirstOrDefault().RequestId).Result;
-                if (variables != null)
-                {
-                    foreach (var variable in variables)
-                    {
-                        mainProcess.Variables[variable.Key] = variable.Value;
-                    }
-                }
-                mainProcess.StartingEvent = id;
-            if (flowPauser.Any() == true)
-                return true;
-            else
-                return false;
-
         }
         public static bool CheckFlowPauser(Context context, long processId, string flowPauserName)
         {
