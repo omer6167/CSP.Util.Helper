@@ -66,11 +66,7 @@ namespace CSP.Util.Helper
             var credentials = GetTokenCredential(context);
             return new ServiceAPI(credentials, webInterfaceUrl ?? WebInterfaceUrl);
         }
-
-        //public static ServiceAPI GetServiceApiInstance()
-        //{
-        //    return new ServiceAPI(BasicCredentials, WebInterfaceUrl);
-        //}           
+                
 
         public static FormInstance GetFormInstance(Context context, string processName, string formName, long documentId = 0)
         {
