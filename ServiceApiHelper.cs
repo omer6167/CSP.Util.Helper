@@ -28,6 +28,8 @@ namespace CSP.Util.Helper
     {
         private static string _webInterfaceUrl;
 
+        public static FormInstance _formInstance { get; set; }
+
         internal static string WebInterfaceUrl
         {
             get
@@ -305,20 +307,7 @@ namespace CSP.Util.Helper
                 return new List<T> { };
             }
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="project"></param>
-        /// <param name="query"></param>
-        /// <param name="prm"></param>
-        /// <returns></returns>
-        public async static Task<List<T>> ExecQueryAsync<T>(Context context, string project, string query, object prm = null)
-        {
-            var resp = await GetServiceApiInstance(context).DataSourceManager.ExecuteQuery<T>(project, query, prm);
-            return resp;
-        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -329,7 +318,7 @@ namespace CSP.Util.Helper
         /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static async Task AkisDevamEttirAsync(Context context, long processId, string flowPauserName, string projectName, Event id)
+        public static async Task ContinueFlowAsync(Context context, long processId, string flowPauserName, string projectName, Event id)
         {
             var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
             var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
@@ -346,6 +335,7 @@ namespace CSP.Util.Helper
                 var continueResponse = await mainProcess.Continue();
             }
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -354,25 +344,47 @@ namespace CSP.Util.Helper
         /// <param name="flowPauserName"></param>
         /// <param name="projectName"></param>
         /// <param name="id"></param>
-        /// <exception cref="Exception"></exception>
-        public static void AkisDevamEttir(Context context, long processId, string flowPauserName, string projectName, Event id)
+        /// <param name="variables"></param>
+        /// <exception cref="Exception"></exception> 
+        public static void ContinueFlow(Context context, long processId, string flowPauserName, string projectName, Event id, Dictionary<string, string> variables = null)
         {
+
             var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
             var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
 
 
-
+            //LogExtension.Warning(flowRequests.Result,context);
             if (flowPauser.Any() == false)
                 throw new Exception("Üst akışı devam ettirmek için durdurucuda beklemesi lazım;" + processId + "-" + flowPauserName);
+
 
             else
             {
                 var mainProcess = GetServiceApiInstance(context).WorkflowManager.Create(projectName, "Flow1", processId, flowPauser.FirstOrDefault().RequestId).Result;
+                if (variables != null)
+                {
+                    foreach (var variable in variables)
+                    {
+                        mainProcess.Variables[variable.Key] = variable.Value;
+                    }
+                }
                 mainProcess.StartingEvent = id;
 
                 var continueResponse = mainProcess.Continue().Result;
                 LogExtension.Warning(continueResponse, context);
             }
+        }
+        public static bool CheckFlowPauser(Context context, long processId, string flowPauserName)
+        {
+            var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
+            var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
+
+
+            if (flowPauser.Any() == true)
+                return true;
+            else
+                return false;
+
         }
     }
 }

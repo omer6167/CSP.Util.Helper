@@ -101,7 +101,7 @@ namespace CSP.Util.Helper
         /// <param name="conStr"></param>
         /// <param name="prm"></param>
         /// <returns></returns>
-        public static DataTable GetSQLData(string queryString, string conStr, Dictionary<string, string> prm = null)
+        public static DataTable GetData(string queryString, string conStr, Dictionary<string, string> prm = null)
         {
             using (SqlConnection connection = new SqlConnection(conStr))
             {
@@ -137,7 +137,7 @@ namespace CSP.Util.Helper
         /// <param name="queryString"></param>
         /// <param name="prm"></param>
         /// <returns></returns>
-        public static DataTable GetSQLData(Context context, string queryString, Dictionary<string, string> prm = null)
+        public static DataTable GetData(Context context, string queryString, Dictionary<string, string> prm = null)
         {
             Config config = GetConfig(context);
 
@@ -177,7 +177,7 @@ namespace CSP.Util.Helper
         /// <param name="prm"></param>
         /// <param name="sqltyp"></param>
         /// <returns></returns>
-        public static object SQLExecuteScalar(string queryString, string conStr, Dictionary<string, string> prm = null, CommandType sqltyp = CommandType.Text)
+        public static object ExecuteScalar(string queryString, string conStr, Dictionary<string, string> prm = null, CommandType sqltyp = CommandType.Text)
         {
             using (SqlConnection connection = new SqlConnection(conStr))
             {
@@ -207,7 +207,7 @@ namespace CSP.Util.Helper
         /// <param name="prm"></param>
         /// <param name="sqltyp"></param>
         /// <returns></returns>
-        public static object SQLExecuteScalar(Context context, string queryString, Dictionary<string, string> prm = null, CommandType sqltyp = CommandType.Text)
+        public static object ExecuteScalar(Context context, string queryString, Dictionary<string, string> prm = null, CommandType sqltyp = CommandType.Text)
         {
             Config config = GetConfig(context);
 
@@ -237,7 +237,7 @@ namespace CSP.Util.Helper
         /// <param name="queryString"></param>
         /// <param name="ConStr"></param>
         /// <param name="prm"></param>
-        public static int SQLExecute(string queryString, string ConStr, Dictionary<string, string> prm = null) //,   CommandType sqltyp=CommandType.Text)
+        public static int Execute(string queryString, string ConStr, Dictionary<string, string> prm = null) //,   CommandType sqltyp=CommandType.Text)
         {
             using (SqlConnection connection = new SqlConnection(ConStr))
             {
@@ -265,7 +265,7 @@ namespace CSP.Util.Helper
         /// <param name="context"></param>
         /// <param name="queryString"></param>
         /// <param name="prm"></param>
-        public static int SQLExecute(Context context, string queryString, Dictionary<string, string> prm = null) //,   CommandType sqltyp=CommandType.Text)
+        public static int Execute(Context context, string queryString, Dictionary<string, string> prm = null) //,   CommandType sqltyp=CommandType.Text)
         {
             Config config = GetConfig(context);
 
@@ -302,12 +302,12 @@ namespace CSP.Util.Helper
         {
             Config config = GetConfig(context);
 
-            SQLExecute(@"INSERT INTO AI_LOG (LOGTEXT) VALUES(N'" + logJsonValue + "')", config._ConnStr);
+            Execute(@"INSERT INTO AI_LOG (LOGTEXT) VALUES(N'" + logJsonValue + "')", config._ConnStr);
         }
 
         private static void Log(Config config, string logJsonValue)
         {
-            SQLExecute(@"INSERT INTO AI_LOG (LOGTEXT) VALUES(N'" + logJsonValue + "')", config._ConnStr);
+            Execute(@"INSERT INTO AI_LOG (LOGTEXT) VALUES(N'" + logJsonValue + "')", config._ConnStr);
         }
 
         /// <summary>
@@ -318,7 +318,7 @@ namespace CSP.Util.Helper
         public static void Log(string logJsonValue, string connString)
         {
 
-            SQLExecute(@"INSERT INTO AI_LOG (LOGTEXT) VALUES(N'" + logJsonValue + "')", connString);
+            Execute(@"INSERT INTO AI_LOG (LOGTEXT) VALUES(N'" + logJsonValue + "')", connString);
         }
 
         /// <summary>

@@ -34,7 +34,7 @@ namespace CSP.Util.Helper
             dt.Columns.Add("Project");
             dt.Columns.Add("Date");
 
-            return dt; 
+            return dt;
         }
 
         /// <summary>
@@ -44,16 +44,16 @@ namespace CSP.Util.Helper
         public void CrateTableOnDB(string connString)
         {
             string query = @"if OBJECT_ID('TBL_LogClass') is null 
-                            CREATE TABLE [dbo].[TBL_LogClass](
-	                        [Id] [bigint] NULL,
-	                        [Message] [varchar](max) NULL,
-	                        [Error] [varchar](max) NULL,
-	                        [Method] [varchar](max) NULL,
-	                        [Project] [varchar](250) NULL,
-	                        [Date] [varchar](250) NULL
-                        )";
+							CREATE TABLE [dbo].[TBL_LogClass](
+							[Id] [bigint] NULL,
+							[Message] [varchar](max) NULL,
+							[Error] [varchar](max) NULL,
+							[Method] [varchar](max) NULL,
+							[Project] [varchar](250) NULL,
+							[Date] [varchar](250) NULL
+						)";
 
-            GetHelper.SQLExecute(queryString: query, ConStr: connString);
+            GetHelper.Execute(queryString: query, ConStr: connString);
 
         }
 
@@ -62,16 +62,16 @@ namespace CSP.Util.Helper
         {
             string query = "select top 1 * from TBL_LogClass order by Id desc;";
 
-            DataTable dt = GetHelper.GetSQLData(queryString: query, conStr: connString);
+            DataTable dt = GetHelper.GetData(queryString: query, conStr: connString);
 
             return dt.ToClass<LogClass>();
         }
 
-        public LogClass GetLogForId(string connString,long Id)
+        public LogClass GetLogForId(string connString, long Id)
         {
             string query = "select top 1 * from TBL_LogClass where Id = @Id ;";
 
-            DataTable dt = GetHelper.GetSQLData(queryString: query, conStr: connString,new Dictionary<string, string>()
+            DataTable dt = GetHelper.GetData(queryString: query, conStr: connString, new Dictionary<string, string>()
             {
                 { "Id",Id.ToString() }
             });
