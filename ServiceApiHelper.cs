@@ -309,8 +309,6 @@ namespace CSP.Util.Helper
                 return new List<T> { };
             }
         }
-
-
         /// <summary>
         /// 
         /// </summary>
@@ -353,7 +351,6 @@ namespace CSP.Util.Helper
                 var continueResponse = await mainProcess.Continue();
             }
         }
-
         /// <summary>
         /// 
         /// </summary>
@@ -387,7 +384,7 @@ namespace CSP.Util.Helper
                     }
                 }
                 mainProcess.StartingEvent = id;
-
+                
                 var continueResponse = mainProcess.Continue().Result;
                 LogExtension.Warning(continueResponse, context);
             }
