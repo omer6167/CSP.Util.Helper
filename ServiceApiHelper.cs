@@ -73,7 +73,20 @@ namespace CSP.Util.Helper
             var serviceApi = GetServiceApiInstance(context) ?? GetServiceApiInstance(context);
             return serviceApi.FormManager.CreateWithoutView(processName, formName, documentId).Result;
         }
+        public static string GetFormControlValue(FormInstance frm, string controlName)
+        {
+            var controlValue = frm.Controls[controlName].Value;
+            if (controlValue is JValue jValue && jValue.Type == JTokenType.Boolean)
+            {
+                return jValue.Value<bool>().ToString();
+            }
+            else
+            {
+                return controlValue.ToString();
+            }
+        }
 
+        
         public static async Task<WorkflowInstance> CreateProcess(Context context, string projectName, string flowName, long processId = 0)
         {
             ServiceAPI ServiceApi = GetServiceApiInstance(context);

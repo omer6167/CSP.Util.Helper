@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Bimser.Synergy.ServiceAPI.Models.Form;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -91,6 +92,57 @@ namespace CSP.Util.Helper
         public static void InsertLog(this LogClass logClass,string connString)
         {
             GetHelper.Log(logJsonValue: logClass.ToJson(), connString: connString);
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="frm"></param>
+        /// <param name="controlName"></param>
+        /// <returns></returns>
+        public static object GetFormControlValue(this FormInstance frm, string controlName)
+        {
+            var controlValue = frm.Controls[controlName].Value;
+            if (controlValue is JValue jValue && jValue.Type == JTokenType.Boolean)
+            {
+                return jValue.Value<bool>().ToString();
+            }
+            else
+            {
+                return controlValue;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sourceForm"></param>
+        /// <param name="targetForm"></param>
+        /// <param name="controlName"></param>
+        public static void SetFormControlValue(this FormInstance sourceForm, FormInstance targetForm,  string controlName)
+        {
+            try
+            {
+                targetForm.SetControlValue(controlName,GetFormControlValue(sourceForm,controlName));
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public static void SetFormControlValues(this FormInstance sourceForm, FormInstance targetForm, Dictionary<string, string> controlNames)
+        {
+            try
+            {
+                
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }
