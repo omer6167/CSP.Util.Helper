@@ -103,7 +103,7 @@ namespace CSP.Util.Helper
             }
 
             process.StartingEvent = id;
-            await process.SetStarterUserByUserId(userID.ToInt64());
+            process.SetStarterUserByUserId(userID.ToInt64()).Wait();
 
             if (AnAkisId != "")
                 process.ParentProcessId = AnAkisId.ToInt64();
@@ -127,7 +127,8 @@ namespace CSP.Util.Helper
             if (AnAkisId != "")
                 process.ParentProcessId = Convert.ToInt64(AnAkisId);
 
-            var resp = process.SaveAndContinue().Result;
+            process.SaveAndContinue().Wait();
+            
 
             return process.ProcessId;
         }
@@ -266,9 +267,9 @@ namespace CSP.Util.Helper
             return downloadUrl;
 
         }
-        public static void Bind_Related_Documents(List<RelatedDocumentFile> docs, FormInstance bindForm)
+        public static void Bind_Related_Documents(List<RelatedDocumentFile> docs, FormInstance bindForm,string controlName = "rdEkDosya", string categoryName="Varsayılan")
         {
-            Control rdControl = bindForm.Controls["rdEkDosya"];
+            Control rdControl = bindForm.Controls[controlName];
 
             if (!((JToken)rdControl.Value).HasValues)
             {
@@ -281,11 +282,11 @@ namespace CSP.Util.Helper
 
             foreach (RelatedDocumentFile file in docs)
             {
-                file.Category = rdCategories1.Find(cat => cat.Name["tr-TR"].Equals("Varsayılan"));//Varsayilan Kategorideki dosyaları alır
+                file.Category = rdCategories1.Find(cat => cat.Name["tr-TR"].Equals(categoryName));//Varsayilan Kategorideki dosyaları alır
                 rdFiles1.Add(file);
             }
 
-            bindForm.Controls["rdEkDosya"].Value = rdFiles1;
+            bindForm.Controls[controlName].Value = rdFiles1;
             var resp = bindForm.Save();
         }
 
