@@ -28,7 +28,7 @@ namespace CSP.Util.Helper
     {
         private static string _webInterfaceUrl;
 
-        public static FormInstance _formInstance { get; set; }
+        public static FormInstance _formInstance;
 
         internal static string WebInterfaceUrl
         {
@@ -259,8 +259,8 @@ namespace CSP.Util.Helper
             Configuration config = GetHelper.GetConfig(context);
 
 
-            WrapResponse<GetDMObjectsResponse> file = ServiceApiHelper.GetServiceApiInstance(context).DocumentManagement.GetDMObjectsFromPath(new GetDMObjectsFromPathRequest(path)).Result;
-            GetDownloadUrlResponse getDownloadUrlResponse = ServiceApiHelper.GetServiceApiInstance(context).DocumentManagement.GetDownloadUrl(file.Result.Items[0].SecretKey, file.Result.Items[0].Name[file.Result.Items[0].Name.Keys.First()]).Result;
+            WrapResponse<GetDMObjectsResponse> file = GetServiceApiInstance(context).DocumentManagement.GetDMObjectsFromPath(new GetDMObjectsFromPathRequest(path)).Result;
+            GetDownloadUrlResponse getDownloadUrlResponse = GetServiceApiInstance(context).DocumentManagement.GetDownloadUrl(file.Result.Items[0].SecretKey, file.Result.Items[0].Name[file.Result.Items[0].Name.Keys.First()]).Result;
 
             string downloadUrl = config._CSPApiUrl + getDownloadUrlResponse.DownloadUrl;
 
