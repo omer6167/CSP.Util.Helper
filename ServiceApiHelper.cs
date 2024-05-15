@@ -255,7 +255,7 @@ namespace CSP.Util.Helper
         /// <returns></returns>
         public static string GetDMDownloadUrl(Context context, string path)
         {
-            Config config = GetHelper.GetConfig(context);
+            Configuration config = GetHelper.GetConfig(context);
 
 
             WrapResponse<GetDMObjectsResponse> file = ServiceApiHelper.GetServiceApiInstance(context).DocumentManagement.GetDMObjectsFromPath(new GetDMObjectsFromPathRequest(path)).Result;

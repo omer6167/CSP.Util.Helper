@@ -24,14 +24,14 @@ namespace CSP.Util.Helper
 
     public static class GetHelper
     {
-        internal static Config GetConfig(Context context)
+        internal static Configuration GetConfig(Context context)
         {
             var prm = new { };
             try
             {
                 string configJson = ExecuteLocalQuery<string>(context, "Get_Config", new object[] { prm }).Result[0];
 
-                return JObject.Parse(configJson)["Config"].ToObject<Config>();
+                return JObject.Parse(configJson)["Config"].ToObject<Configuration>();
             }
             catch (Exception)
             {
@@ -51,7 +51,7 @@ namespace CSP.Util.Helper
         /// <exception cref="Exception"></exception>
         public static T GetSAPData<T>(Context context, string functName, dynamic input)
         {
-            Config config = GetConfig(context);
+            Configuration config = GetConfig(context);
 
             try
             {
@@ -101,7 +101,7 @@ namespace CSP.Util.Helper
         /// <param name="conStr"></param>
         /// <param name="prm"></param>
         /// <returns></returns>
-        public static DataTable GetData(string queryString, string conStr, Dictionary<string, string> prm = null)
+        public static DataTable GetSQLData(string queryString, string conStr, Dictionary<string, string> prm = null)
         {
             using (SqlConnection connection = new SqlConnection(conStr))
             {
@@ -137,9 +137,9 @@ namespace CSP.Util.Helper
         /// <param name="queryString"></param>
         /// <param name="prm"></param>
         /// <returns></returns>
-        public static DataTable GetData(Context context, string queryString, Dictionary<string, string> prm = null)
+        public static DataTable GetSQLData(Context context, string queryString, Dictionary<string, string> prm = null)
         {
-            Config config = GetConfig(context);
+            Configuration config = GetConfig(context);
 
             using (SqlConnection connection = new SqlConnection(config._ConnStr))
             {
@@ -177,7 +177,7 @@ namespace CSP.Util.Helper
         /// <param name="prm"></param>
         /// <param name="sqltyp"></param>
         /// <returns></returns>
-        public static object ExecuteScalar(string queryString, string conStr, Dictionary<string, string> prm = null, CommandType sqltyp = CommandType.Text)
+        public static object SQLExecuteScalar(string queryString, string conStr, Dictionary<string, string> prm = null, CommandType sqltyp = CommandType.Text)
         {
             using (SqlConnection connection = new SqlConnection(conStr))
             {
@@ -207,9 +207,9 @@ namespace CSP.Util.Helper
         /// <param name="prm"></param>
         /// <param name="sqltyp"></param>
         /// <returns></returns>
-        public static object ExecuteScalar(Context context, string queryString, Dictionary<string, string> prm = null, CommandType sqltyp = CommandType.Text)
+        public static object SQLExecuteScalar(Context context, string queryString, Dictionary<string, string> prm = null, CommandType sqltyp = CommandType.Text)
         {
-            Config config = GetConfig(context);
+            Configuration config = GetConfig(context);
 
             using (SqlConnection connection = new SqlConnection(config._ConnStr))
             {
@@ -237,7 +237,7 @@ namespace CSP.Util.Helper
         /// <param name="queryString"></param>
         /// <param name="ConStr"></param>
         /// <param name="prm"></param>
-        public static int Execute(string queryString, string ConStr, Dictionary<string, string> prm = null) //,   CommandType sqltyp=CommandType.Text)
+        public static int SQLExecute(string queryString, string ConStr, Dictionary<string, string> prm = null) //,   CommandType sqltyp=CommandType.Text)
         {
             using (SqlConnection connection = new SqlConnection(ConStr))
             {
@@ -265,9 +265,9 @@ namespace CSP.Util.Helper
         /// <param name="context"></param>
         /// <param name="queryString"></param>
         /// <param name="prm"></param>
-        public static int Execute(Context context, string queryString, Dictionary<string, string> prm = null) //,   CommandType sqltyp=CommandType.Text)
+        public static int SQLExecute(Context context, string queryString, Dictionary<string, string> prm = null) //,   CommandType sqltyp=CommandType.Text)
         {
-            Config config = GetConfig(context);
+            Configuration config = GetConfig(context);
 
             using (SqlConnection connection = new SqlConnection(config._ConnStr))
             {
@@ -300,14 +300,14 @@ namespace CSP.Util.Helper
         /// <param name="logJsonValue"></param>
         public static void Log(Context context, string logJsonValue)
         {
-            Config config = GetConfig(context);
+            Configuration config = GetConfig(context);
 
-            Execute(@"INSERT INTO AI_LOG (LOGTEXT) VALUES(N'" + logJsonValue + "')", config._ConnStr);
+            SQLExecute(@"INSERT INTO AI_LOG (LOGTEXT) VALUES(N'" + logJsonValue + "')", config._ConnStr);
         }
 
-        private static void Log(Config config, string logJsonValue)
+        private static void Log(Configuration config, string logJsonValue)
         {
-            Execute(@"INSERT INTO AI_LOG (LOGTEXT) VALUES(N'" + logJsonValue + "')", config._ConnStr);
+            SQLExecute(@"INSERT INTO AI_LOG (LOGTEXT) VALUES(N'" + logJsonValue + "')", config._ConnStr);
         }
 
         /// <summary>
@@ -318,7 +318,7 @@ namespace CSP.Util.Helper
         public static void Log(string logJsonValue, string connString)
         {
 
-            Execute(@"INSERT INTO AI_LOG (LOGTEXT) VALUES(N'" + logJsonValue + "')", connString);
+            SQLExecute(@"INSERT INTO AI_LOG (LOGTEXT) VALUES(N'" + logJsonValue + "')", connString);
         }
 
         /// <summary>
@@ -329,7 +329,7 @@ namespace CSP.Util.Helper
         /// <param name="tableName"></param>       
         public static void LogToTable(Context context, DataTable bulkData, string tableName)
         {
-            Config config = GetConfig(context);
+            Configuration config = GetConfig(context);
 
             BulkInsert(context, bulkData, tableName);
         }
@@ -349,7 +349,7 @@ namespace CSP.Util.Helper
 
         private static void BulkInsert(Context context, DataTable bulkData, string tableName)
         {
-            Config config = GetConfig(context);
+            Configuration config = GetConfig(context);
             SqlConnection con = new SqlConnection(config._ConnStr);
 
             con.Open();
@@ -524,7 +524,7 @@ namespace CSP.Util.Helper
         /// <exception cref="Exception"></exception>
         public static string GetDMLink(Context context, string path)
         {
-            Config config = GetConfig(context);
+            Configuration config = GetConfig(context);
 
             try
             {
