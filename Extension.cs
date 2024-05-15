@@ -38,6 +38,8 @@ namespace CSP.Util.Helper
         public static T ToClass<T>(this DataTable dataTable)
         {
             string json = JsonConvert.SerializeObject(dataTable);
+            
+
             T myClass = JsonConvert.DeserializeObject<T>(json);
 
             return myClass;
@@ -57,10 +59,12 @@ namespace CSP.Util.Helper
                 }
                 catch (JsonReaderException jex)
                 {
+                    Console.WriteLine(jex.Message);
                     return false;
                 }
                 catch (Exception ex) //some other exception
                 {
+                    Console.WriteLine(ex.Message);
                     return false;
                 }
             }

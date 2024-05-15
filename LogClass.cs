@@ -53,7 +53,7 @@ namespace CSP.Util.Helper
 							[Date] [varchar](250) NULL
 						)";
 
-            GetHelper.Execute(queryString: query, ConStr: connString);
+            GetHelper.SQLExecute(queryString: query, ConStr: connString);
 
         }
 
@@ -62,7 +62,7 @@ namespace CSP.Util.Helper
         {
             string query = "select top 1 * from TBL_LogClass order by Id desc;";
 
-            DataTable dt = GetHelper.GetData(queryString: query, conStr: connString);
+            DataTable dt = GetHelper.GetSQLData(queryString: query, conStr: connString);
 
             return dt.ToClass<LogClass>();
         }
@@ -71,7 +71,7 @@ namespace CSP.Util.Helper
         {
             string query = "select top 1 * from TBL_LogClass where Id = @Id ;";
 
-            DataTable dt = GetHelper.GetData(queryString: query, conStr: connString, new Dictionary<string, string>()
+            DataTable dt = GetHelper.GetSQLData(queryString: query, conStr: connString,prm: new Dictionary<string, string>()
             {
                 { "Id",Id.ToString() }
             });
