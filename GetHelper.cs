@@ -329,6 +329,9 @@ namespace CSP.Util.Helper
         /// <param name="tableName"></param>       
         public static void LogToTable(Context context, DataTable bulkData, string tableName)
         {
+            if (string.IsNullOrEmpty(tableName))
+                throw new ArgumentNullException("Detay Tablo İçin Tablo İsmi Giriniz");
+            
             Configuration config = GetConfig(context);
 
             BulkInsert(context, bulkData, tableName);
@@ -342,6 +345,9 @@ namespace CSP.Util.Helper
         /// <param name="tableName"></param>
         public static void LogToTable(string connString, DataTable bulkData, string tableName)
         {
+            if(string.IsNullOrEmpty(tableName)) 
+                    throw new ArgumentNullException("Detay Tablo İçin Tablo İsmi Giriniz");
+            
             BulkInsert(connString, bulkData, tableName);
         }
 
