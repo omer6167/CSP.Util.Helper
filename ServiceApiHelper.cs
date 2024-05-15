@@ -122,7 +122,7 @@ namespace CSP.Util.Helper
             }
 
             process.StartingEvent = id;
-            process.SetStarterUserByUserId(userID.ToInt64());
+            process.SetStarterUserByUserId(userID.ToInt64()).Wait();
 
             if (AnAkisId != "")
                 process.ParentProcessId = Convert.ToInt64(AnAkisId);
