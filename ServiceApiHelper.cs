@@ -111,7 +111,7 @@ namespace CSP.Util.Helper
             await process.SaveAndContinue();
         }
 
-        public static long StartFlow(Context context, string processName, Dictionary<string, object> values, string userID, string flowName = "Flow1", string AnAkisId = "", Event id = null)
+        public static long StartFlow(Context context, string processName, Dictionary<string, object> values, string userID, string flowName = "Flow1", string AnAkisId = "", Event? id = null)
         {
             id ??= new Event() { Id = 4 };
 
