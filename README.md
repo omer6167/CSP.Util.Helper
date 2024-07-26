@@ -12,10 +12,10 @@
 > You must need to Bimser.Synergy.CSP nuget.config for using CSP library.
 
 > [!WARNING]
-> 
+> There are external nuget packages in the libraries used.
 
 > [!CAUTION]
-> 
+>  
 
 
 ```c#
