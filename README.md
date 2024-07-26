@@ -17,5 +17,7 @@
 > [!CAUTION]
 >  
 
+> ### C# Tips
 
 ```c#
+Cconsole.WriteLine("Hello");
