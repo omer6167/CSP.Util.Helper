@@ -15,9 +15,9 @@
 > There are external nuget packages in the libraries used.
 
 > [!CAUTION]
->  
+> Beware the programming errors 
 
 > ### C# Tips
 
 ```c#
-Cconsole.WriteLine("Hello");
+Console.WriteLine("Hello");
