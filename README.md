@@ -6,7 +6,7 @@
 > 
 
 > [!TIP]
-> 
+> All classes are included in Helper class
 
 > [!IMPORTANT]
 > 
