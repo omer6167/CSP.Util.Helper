@@ -2,6 +2,10 @@
 {
     public class Configuration
     {
+        public Configuration()
+        {
+              
+        }
         public string _ConnStr { get; set; } = "";
         public string _CSPApiUrl { get; set; } = "";
         public string _CSPUrl { get; set; } = "";

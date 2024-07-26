@@ -36,7 +36,7 @@ namespace CSP.Util.Helper
         /// </summary>
         /// <param name="iban"></param>
         /// <returns></returns>
-        public static bool CheckIban(string iban)
+        public static bool CheckIbanIfIsTR(string iban)
         {
             string strIBAN = iban.Trim().ToUpper();
 

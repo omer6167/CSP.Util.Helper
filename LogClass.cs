@@ -1,5 +1,4 @@
-﻿using DevExpress.Data.Linq.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -53,7 +52,7 @@ namespace CSP.Util.Helper
 							[Date] [varchar](250) NULL
 						)";
 
-            GetHelper.SQLExecute(queryString: query, ConStr: connString);
+            SqlHelper.Execute(queryString: query, ConStr: connString);
 
         }
 
@@ -62,7 +61,7 @@ namespace CSP.Util.Helper
         {
             string query = "select top 1 * from TBL_LogClass order by Id desc;";
 
-            DataTable dt = GetHelper.GetSQLData(queryString: query, conStr: connString);
+            DataTable dt = SqlHelper.GetSQLData(queryString: query, conStr: connString);
 
             return dt.ToClass<LogClass>();
         }
@@ -71,7 +70,7 @@ namespace CSP.Util.Helper
         {
             string query = "select top 1 * from TBL_LogClass where Id = @Id ;";
 
-            DataTable dt = GetHelper.GetSQLData(queryString: query, conStr: connString,prm: new Dictionary<string, string>()
+            DataTable dt = SqlHelper.GetSQLData(queryString: query, conStr: connString,prm: new Dictionary<string, string>()
             {
                 { "Id",Id.ToString() }
             });

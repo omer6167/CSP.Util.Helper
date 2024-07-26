@@ -10,8 +10,8 @@
     <PackageId>CSP.Util.Helper</PackageId>
     <Version>1.0.8</Version>
     <Authors>OKUCUK</Authors>
-    <Description>Usefull methods for Synergy CSP, it have ServiAPIHelper, MssqlDataHelper,PDfHelper
-Use with Config Class or get Config from DataSource </Description>
+    <Description>Usefull methods for Synergy CSP, it have ServiAPIHelper, MssqlDataHelper,PDfHelper and Extensions
+    </Description>
     <Platforms>AnyCPU;x86;x64</Platforms>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/omer6167/CSP.Util.Helper</RepositoryUrl>
@@ -47,7 +47,7 @@ Use with Config Class or get Config from DataSource </Description>
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FreeSpire.Doc" Version="11.6.0" />
+		<PackageReference Include="FreeSpire.Doc" Version="12.2.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="RestSharp" Version="110.2.0" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.6" />

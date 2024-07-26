@@ -8,11 +8,6 @@ using Bimser.Synergy.ServiceAPI.Models.Workflow;
 using Bimser.Synergy.ServiceAPI.Models.Form;
 using Bimser.CSP.FormControls.Controls;
 using Bimser.Synergy.Entities.Workflow.Models.Properties;
-using Bimser.Framework.Web.Models;
-using Microsoft.AspNetCore.StaticFiles;
-using Bimser.Synergy.Entities.DocumentManagement.Business.DTOs.Requests;
-using Bimser.Synergy.Entities.DocumentManagement.Business.DTOs.Responses;
-using Bimser.Synergy.Entities.DocumentManagement.Business.Objects;
 using Bimser.CSP.Runtime.Common.Extensions;
 using System;
 using System.Threading.Tasks;
@@ -26,9 +21,9 @@ namespace CSP.Util.Helper
 
     public static class ServiceApiHelper
     {
-        private static string _webInterfaceUrl;
+        private static string? _webInterfaceUrl;
 
-        public static FormInstance _formInstance;
+        public static FormInstance? FormInstance { get; set; }
 
         internal static string WebInterfaceUrl
         {
@@ -55,13 +50,9 @@ namespace CSP.Util.Helper
             };
         }
 
-        public static List<T> GetData<T>(Context context, string connectionName, string queryName, object parameters)
-        {
-            var serviceApi = GetServiceApiInstance(context) ?? GetServiceApiInstance(context);
-            return serviceApi.DataSourceManager.ExecuteQuery<T>(connectionName, queryName, parameters).Result;
-        }
 
-        internal static ServiceAPI GetServiceApiInstance(Context context, string webInterfaceUrl = null)
+
+        public static ServiceAPI GetServiceApiInstance(Context context, string webInterfaceUrl = null)
         {
             var credentials = GetTokenCredential(context);
             return new ServiceAPI(credentials, webInterfaceUrl ?? WebInterfaceUrl);
@@ -75,6 +66,9 @@ namespace CSP.Util.Helper
         }
         public static string GetFormControlValue(FormInstance frm, string controlName)
         {
+            if(frm.Controls[controlName] is null)
+                throw new ArgumentNullException(controlName +" is null");
+
             var controlValue = frm.Controls[controlName].Value;
             if (controlValue is JValue jValue && jValue.Type == JTokenType.Boolean)
             {
@@ -86,12 +80,12 @@ namespace CSP.Util.Helper
             }
         }
 
-        
         public static async Task<WorkflowInstance> CreateProcess(Context context, string projectName, string flowName, long processId = 0)
         {
             ServiceAPI ServiceApi = GetServiceApiInstance(context);
             return await ServiceApi.WorkflowManager.Create(projectName, flowName, processId);
         }        
+
         public async static Task StartFlowAsync(Context context, string processName, Dictionary<string, object> values, string userID, string flowName = "Flow1", string AnAkisId = "", Event id = null)
         {
             id ??= new Event() { Id = 4 };
@@ -177,7 +171,7 @@ namespace CSP.Util.Helper
 
             if (control == null)
             {
-                LogExtension.Log(controlName + " İsimli RelatedDocuments nesnesi bulunamadı.", context);
+                LogExtension.Error(controlName + " İsimli RelatedDocuments nesnesi bulunamadı.", context);
             }
             else
             {
@@ -190,84 +184,12 @@ namespace CSP.Util.Helper
             return files;
         }
 
-        internal static byte[] Download(Context context, string path)
-        {
-            var serviceApi = GetServiceApiInstance(context) ?? GetServiceApiInstance(context);
-            return serviceApi.DocumentManagement.DownloadAsync(path).Result;
-        }
+        
 
-        internal static long Upload(Context context, string dmPath, byte[] data, long major = 1, long minor = 0)
-        {
-            var serviceApi = GetServiceApiInstance(context);
-            string[] pathParts = dmPath.Split("/");
-            string folderPat = string.Join("/", pathParts.SkipLast(1));
-            var folders = serviceApi.DocumentManagement.GetDMObjectsFromPath(new GetDMObjectsFromPathRequest(folderPat)).Result;
-            string contentType = GetMimeTypeForFileExtension(pathParts.Last());
-
-            if (folders.Success)
-            {
-                GetDMObjectsResponse getDMObjectResponse = folders.Result;
-                if (getDMObjectResponse.Items?.Count > 0)
-                {
-                    string secretkey = getDMObjectResponse.Items[0].SecretKey;
-                    Dictionary<string, string> fileName = new Dictionary<string, string>
-                        {
-                            {"tr-TR",pathParts.Last()},
-                            {"en-US",pathParts.Last()}
-
-                        };
-                    FileContentInfo fileContentInfo = new FileContentInfo(contentType, data.Length);
-                    CreateFileRequest createFileRequest = new CreateFileRequest(secretkey, fileContentInfo, fileName, new Dictionary<string, string>(), null, new FileVersion() { Major = major, Minor = minor, VersionDate = DateTime.Now });
-                    var createFileResponse = serviceApi.DocumentManagement.CreateFile(createFileRequest).Result;
-                    if (createFileResponse.Success)
-                    {
-                        string fileSecretkey = createFileResponse.Result.SecretKey;
-                        var uploadParts = serviceApi.DocumentManagement.GetUploadParts(new GetUploadPartsRequest(fileSecretkey, null, data.Length)).Result;
-                        if (uploadParts.Success)
-                        {
-                            serviceApi.DocumentManagement.Upload(data, uploadParts.Result.UploadParts);
-                        }
-
-                        return createFileResponse.Result.Id;
-                    }
-                }
-            }
-            return 0;
-        }
-
-        internal static string GetMimeTypeForFileExtension(string filePath)
-        {
-            const string DefaultContentType = "application/octet-stream";
-
-            var provider = new FileExtensionContentTypeProvider();
-
-            if (!provider.TryGetContentType(filePath, out string contentType))
-            {
-                contentType = DefaultContentType;
-            }
-            return contentType;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        public static string GetDMDownloadUrl(Context context, string path)
-        {
-            Configuration config = GetHelper.GetConfig(context);
-
-
-            WrapResponse<GetDMObjectsResponse> file = GetServiceApiInstance(context).DocumentManagement.GetDMObjectsFromPath(new GetDMObjectsFromPathRequest(path)).Result;
-            GetDownloadUrlResponse getDownloadUrlResponse = GetServiceApiInstance(context).DocumentManagement.GetDownloadUrl(file.Result.Items[0].SecretKey, file.Result.Items[0].Name[file.Result.Items[0].Name.Keys.First()]).Result;
-
-            string downloadUrl = config._CSPApiUrl + getDownloadUrlResponse.DownloadUrl;
-
-            return downloadUrl;
-
-        }
-        public static void Bind_Related_Documents(List<RelatedDocumentFile> docs, FormInstance bindForm,string controlName = "rdEkDosya", string categoryName="Varsayılan")
+        
+       
+        
+        public static void Bind_Related_Documents(List<RelatedDocumentFile> docs, FormInstance bindForm,string controlName = "rdEkDosya", string categoryName="Varsayılan",string culture = "tr-TR")
         {
             Control rdControl = bindForm.Controls[controlName];
 
@@ -282,7 +204,7 @@ namespace CSP.Util.Helper
 
             foreach (RelatedDocumentFile file in docs)
             {
-                file.Category = rdCategories1.Find(cat => cat.Name["tr-TR"].Equals(categoryName));//Varsayilan Kategorideki dosyaları alır
+                file.Category = rdCategories1.Find(cat => cat.Name[culture].Equals(categoryName));//Varsayilan Kategorideki dosyaları alır
                 rdFiles1.Add(file);
             }
 
@@ -290,49 +212,7 @@ namespace CSP.Util.Helper
             var resp = bindForm.Save();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="project"></param>
-        /// <param name="query"></param>
-        /// <param name="prm"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static List<T> ExecQuery<T>(Context context, string project, string query, object prm = null)
-        {
-            ServiceAPI service = GetServiceApiInstance(context);
-            
-            var resp = service.DataSourceManager.ExecuteQuery<T>(project, query, prm);
-
-            if (resp.Result != null)
-            {
-                return resp.Result;
-            }
-            else if (resp.Exception != null)
-            {
-                throw new Exception("Sorgu Çalıştırılırken Hata Oluştu:" + query + ";" + resp.Exception.Message);
-            }
-            else
-            {
-                return new List<T> { };
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="project"></param>
-        /// <param name="query"></param>
-        /// <param name="prm"></param>
-        /// <returns></returns>
-        public async static Task<List<T>> ExecQueryAsync<T>(Context context, string project, string query, object prm = null)
-        {
-            var resp = await GetServiceApiInstance(context).DataSourceManager.ExecuteQuery<T>(project, query, prm);
-            return resp;
-        }
+        
 
         /// <summary>
         /// 
@@ -344,9 +224,11 @@ namespace CSP.Util.Helper
         /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static async Task ContinueFlowAsync(Context context, long processId, string flowPauserName, string projectName, Event id)
+        public static async Task ContinueFlowAsync(Context context, long processId, string flowPauserName, string projectName, int eventId)
         {
-            var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
+            ServiceAPI serviceAPI = GetServiceApiInstance(context);
+
+            var flowRequests = serviceAPI.WorkflowManager.GetWaitingProcessRequests(processId).Result;
             var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
 
 
@@ -355,8 +237,8 @@ namespace CSP.Util.Helper
 
             else
             {
-                var mainProcess = GetServiceApiInstance(context).WorkflowManager.Create(projectName, "Flow1", processId, flowPauser.FirstOrDefault().RequestId).Result;
-                mainProcess.StartingEvent = id;
+                var mainProcess = serviceAPI.WorkflowManager.Create(projectName, "Flow1", processId, flowPauser.FirstOrDefault().RequestId).Result;
+                mainProcess.StartingEvent = new Event() { Id = eventId };
 
                 var continueResponse = await mainProcess.Continue();
             }
@@ -371,10 +253,11 @@ namespace CSP.Util.Helper
         /// <param name="id"></param>
         /// <param name="variables"></param>
         /// <exception cref="Exception"></exception> 
-        public static void ContinueFlow(Context context, long processId, string flowPauserName, string projectName, Event id, Dictionary<string, string> variables = null)
+        public static void ContinueFlow(Context context, long processId, string flowPauserName, string projectName, int eventId, Dictionary<string, string> variables = null)
         {
+            ServiceAPI serviceAPI = GetServiceApiInstance(context);
 
-            var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
+            var flowRequests = serviceAPI.WorkflowManager.GetWaitingProcessRequests(processId).Result;
             var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
 
 
@@ -385,7 +268,7 @@ namespace CSP.Util.Helper
 
             else
             {
-                var mainProcess = GetServiceApiInstance(context).WorkflowManager.Create(projectName, "Flow1", processId, flowPauser.FirstOrDefault().RequestId).Result;
+                var mainProcess = serviceAPI.WorkflowManager.Create(projectName, "Flow1", processId, flowPauser.FirstOrDefault().RequestId).Result;
                 if (variables != null)
                 {
                     foreach (var variable in variables)
@@ -393,17 +276,18 @@ namespace CSP.Util.Helper
                         mainProcess.Variables[variable.Key] = variable.Value;
                     }
                 }
-                mainProcess.StartingEvent = id;
+                mainProcess.StartingEvent = new Event() { Id = eventId};
                 
                 var continueResponse = mainProcess.Continue().Result;
-                LogExtension.Warning(continueResponse, context);
+                
             }
         }
         public static bool CheckFlowPauser(Context context, long processId, string flowPauserName)
         {
-            var flowRequests = GetServiceApiInstance(context).WorkflowManager.GetWaitingProcessRequests(processId).Result;
-            var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
+            ServiceAPI serviceAPI = GetServiceApiInstance(context);
 
+            var flowRequests = serviceAPI.WorkflowManager.GetWaitingProcessRequests(processId).Result;
+            var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
 
             if (flowPauser.Any() == true)
                 return true;
@@ -411,6 +295,17 @@ namespace CSP.Util.Helper
                 return false;
 
         }
+
+        #region Extensions
+
+        public static GridDataRowCell GetCellByName(this GridDataRow gridDataRow, string name)
+        {
+            var cell = gridDataRow.Cells.FirstOrDefault(x => x.Name == name);
+
+            return cell is null ? throw new ArgumentNullException($"GridDataRowExtension.Error, A cell named {name} could not be found!") : cell;
+        }
+
+        #endregion
     }
 }
 
