@@ -1826,7 +1826,10 @@ namespace Helper
 				throw new InvalidOperationException(controlName + " için değer atama işlemi başarısız; " + ex.Message);
 			}
 		}
-
+		public static Dictionary<string, string> GetNameByText(this string name)
+		{
+			return new Dictionary<string, string>() { { "tr-TR", name }, { "en-US", name } };
+		}
 		public static void SetFormControlValues(
 			this FormInstance sourceForm,
 			FormInstance targetForm,
