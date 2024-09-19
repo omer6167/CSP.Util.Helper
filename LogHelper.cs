@@ -145,6 +145,10 @@ namespace CSP.Util.Helper
         #endregion
 
         #region Extensions
+        public static LogClass ToLogClass(string logClassJson)
+        {
+            return JsonConvert.DeserializeObject<LogClass>(logClassJson);
+        }
 
         /// <summary>
         ///  
@@ -156,10 +160,7 @@ namespace CSP.Util.Helper
             LogHelper.LogToTable(connString: connString, bulkData: bulkData, tableName: bulkData.TableName);
         }
 
-        public static LogClass ToLogClass(string logClassJson)
-        {
-            return JsonConvert.DeserializeObject<LogClass>(logClassJson);
-        }
+        
 
 
         public static void InsertLog(this LogClass logClass, string connString)
