@@ -9,8 +9,8 @@ namespace CSP.Util.Helper
 {
     public static class PdfHelper
     {
-        
-        public static (bool, string) CreatePdfWithSpireDoc(Context context, string templateDMPath, string uploadDMPath, Dictionary<object, object> values)
+
+        public static CreateFileResponse CreatePdfWithSpireDoc(Context context, string templateDMPath, string uploadDMPath, Dictionary<object, object> values)
         {
             string link = string.Empty;
             bool isOk = false;
@@ -19,7 +19,7 @@ namespace CSP.Util.Helper
 
             using MemoryStream ms = new MemoryStream();
 
-            Document doc = new Document();
+            Spire.Doc.Document doc = new Spire.Doc.Document();
 
             doc.LoadFromStream(new MemoryStream(templateBytes), FileFormat.Docx2019);
 
@@ -32,18 +32,18 @@ namespace CSP.Util.Helper
             doc.SaveToFile(ms, FileFormat.PDF);
             ms.Seek(0, SeekOrigin.Begin);
 
-            (long,string) item = DmHelper.Upload(context, uploadDMPath + ".pdf", ms.ToArray());
-            if (item.Item1 > 0) //isPathId 
+            DmHelper.FileResponse response = DmHelper.Upload(context, uploadDMPath + ".pdf", ms.ToArray());
+            if (response.PathId > 0) //isPathId 
             {
                 link = DmHelper.GetDMLink(context, uploadDMPath + ".pdf");
                 isOk = true;
             }
 
-            return (isOk, link);
+            return new CreateFileResponse { IsOk = isOk, PathId = response.PathId, SecretKey = response.SecretKey, Link = link };
 
         }
 
-        public static (bool, string) CreatePdfWithSpireDoc(Context context, string uploadDMPath, string stringInBase64)
+        public static CreateFileResponse CreatePdfWithSpireDoc(Context context, string uploadDMPath, string stringInBase64)
         {
             string link = string.Empty;
             bool isOk = false;
@@ -54,7 +54,7 @@ namespace CSP.Util.Helper
 
             using MemoryStream ms = new MemoryStream();
 
-            Document doc = new();
+            Spire.Doc.Document doc = new();
 
             doc.LoadFromStream(new MemoryStream(bytes), FileFormat.PDF);
 
@@ -63,25 +63,26 @@ namespace CSP.Util.Helper
             doc.SaveToFile(ms, FileFormat.PDF);
             ms.Seek(0, SeekOrigin.Begin);
 
-            (long, string) item = DmHelper.Upload(context, uploadDMPath + ".pdf", ms.ToArray());
-            if (item.Item1 > 0) //isPathId 
+            DmHelper.FileResponse response = DmHelper.Upload(context, uploadDMPath + ".pdf", ms.ToArray());
+            if (response.PathId > 0) //isPathId 
             {
                 link = DmHelper.GetDMLink(context, uploadDMPath + ".pdf");
                 isOk = true;
             }
 
-            return (isOk, link);
+            return new CreateFileResponse { IsOk = isOk, PathId = response.PathId, SecretKey = response.SecretKey,Link = link };
+
 
         }
 
-        public static (bool, string, string) CreateFileFromBase64(Context context, string uploadDMPath, string stringInBase64, string extension = "pdf")
+        public static CreateFileResponse CreateFileFromBase64(Context context, string uploadDMPath, string stringInBase64, string extension = "pdf")
         {
             try
             {
-                string pathId = string.Empty;
+                long pathId = 0;
                 string secretKey = string.Empty;
                 bool isOk = false;
-                
+
 
                 byte[] bytes = Convert.FromBase64String(stringInBase64);
 
@@ -89,21 +90,32 @@ namespace CSP.Util.Helper
                 {
                     ms.Seek(0, SeekOrigin.Begin);
 
-                    (long, string) item = DmHelper.Upload(context, uploadDMPath + "." + extension, ms.ToArray());
+                    DmHelper.FileResponse response = DmHelper.Upload(context, uploadDMPath + "." + extension, ms.ToArray());
 
-                    if (item.Item1 > 0)
+                    if (response.PathId > 0)
                     {
-                        pathId = item.Item1.ToString();
-                        secretKey = item.Item2;
+                        pathId = response.PathId;
+                        secretKey = response.SecretKey;
                         isOk = true;
                     }
                 }
-                return (isOk, pathId, secretKey);
+                return new CreateFileResponse { IsOk = isOk, PathId = pathId, SecretKey = secretKey }; 
             }
             catch (Exception ex)
             {
                 throw new Exception("CreateFileFromBase64 Hata; " + ex.Message);
             }
         }
+        
+        public class CreateFileResponse
+        {
+            public bool IsOk { get; set; }
+            public long PathId { get; set; }
+            public string SecretKey { get; set; } = string.Empty;
+            public string Link { get; set; } = string.Empty;
+        }
+
+      
+    
     }
 }

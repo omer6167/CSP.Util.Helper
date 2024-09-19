@@ -78,6 +78,11 @@ namespace CSP.Util.Helper
         }
 
 
+        public static Dictionary<string, string> GetNameByText(this string name)
+        {
+            return new Dictionary<string, string>() { { "tr-TR", name }, { "en-US", name } };
+        }
+
         public static string ToJson(this LogClass logClass) { return JsonConvert.SerializeObject(logClass); }
 
 
