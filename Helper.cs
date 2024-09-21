@@ -551,7 +551,7 @@ namespace Helper
 
 
 
-		public static List<T> ExecQuery<T>(Context context, string project, string query, object prm = null)
+		public static List<T> ExecuteQuery<T>(Context context, string project, string query, object prm = null)
 		{
 			ServiceAPI service = ServiceApiHelper.GetServiceApiInstance(context);
 
@@ -570,11 +570,30 @@ namespace Helper
 				return new List<T> { };
 			}
 		}
-		public async static Task<List<T>> ExecQueryAsync<T>(Context context, string project, string query, object prm = null)
+		public static List<T> ExecuteQuery<T>(this ServiceAPI serviceApi, string project, string query, object prm = null)
+		{
+			var resp = serviceApi.DataSourceManager.ExecuteQuery<T>(project, query, prm);
+
+			if (resp.Result != null)
+			{
+				return resp.Result;
+			}
+			else if (resp.Exception != null)
+			{
+				throw new Exception("Sorgu Çalıştırılırken Hata Oluştu:" + query + ";" + resp.Exception.Message);
+			}
+			else
+			{
+				return new List<T> { };
+			}
+		}
+
+		public async static Task<List<T>> ExecuteQueryAsync<T>(Context context, string project, string query, object prm = null)
 		{
 			var resp = await ServiceApiHelper.GetServiceApiInstance(context).DataSourceManager.ExecuteQuery<T>(project, query, prm);
 			return resp;
 		}
+
 
 		public static object CreateRestParameter(Dictionary<string, object> keyValuePairs, RestWebServiceParameterType type = RestWebServiceParameterType.Body)
 		{
@@ -1462,20 +1481,38 @@ namespace Helper
 			};
 		}
 
-
-
 		public static ServiceAPI GetServiceApiInstance(Context context, string webInterfaceUrl = null)
 		{
 			var credentials = GetTokenCredential(context);
 			return new ServiceAPI(credentials, webInterfaceUrl ?? WebInterfaceUrl);
 		}
-
-
+		
 		public static FormInstance GetFormInstance(Context context, string processName, string formName, long documentId = 0)
 		{
 			var serviceApi = GetServiceApiInstance(context) ?? GetServiceApiInstance(context);
 			return serviceApi.FormManager.CreateWithoutView(processName, formName, documentId).Result;
 		}
+
+		public static FormInstance GetFormInstance(this ServiceAPI serviceApi, string processName, string formName, long documentId = 0)
+		{
+			return serviceApi.FormManager.CreateWithoutView(processName, formName, documentId).Result;
+		}
+
+		public static bool UpdateFormStatus(Context context, string processName, string formName, long documentId, int status)
+		{
+			ServiceAPI serviceApi = GetServiceApiInstance(context);
+			return serviceApi.FormManager.UpdateStatus(processName, formName, documentId, status).Result;
+		}
+		public static bool UpdateFormStatus(this ServiceAPI serviceApi, string processName, string formName, long documentId, int status)
+		{
+			return serviceApi.FormManager.UpdateStatus(processName,formName,documentId,status).Result;
+		}
+
+		public static bool UpdateFormStatus(this FormInstance formInstance, long documentId, int status )
+		{
+			return formInstance.UpdateStatus( documentId,status).Result;
+		}
+
 		public static string GetFormControlValue(FormInstance frm, string controlName)
 		{
 			if (frm.Controls[controlName] is null)
@@ -1491,11 +1528,31 @@ namespace Helper
 				return controlValue.ToString();
 			}
 		}
+		public static object GetControlValue(this FormInstance frm, string controlName)
+		{
+			
+			if (frm.Controls[controlName] is null)
+				throw new ArgumentNullException(controlName + " is null");
+
+			var controlValue = frm.Controls[controlName].Value;
+			if (controlValue is JValue jValue && jValue.Type == JTokenType.Boolean)
+			{
+				return jValue.Value<bool>().ToString();
+			}
+			else
+			{
+				return controlValue;
+			}
+		}
 
 		public static async Task<WorkflowInstance> CreateProcess(Context context, string projectName, string flowName, long processId = 0)
 		{
-			ServiceAPI ServiceApi = GetServiceApiInstance(context);
-			return await ServiceApi.WorkflowManager.Create(projectName, flowName, processId);
+			ServiceAPI serviceApi = GetServiceApiInstance(context);
+			return await serviceApi.WorkflowManager.Create(projectName, flowName, processId);
+		}
+		public static async Task<WorkflowInstance> CreateProcess(this ServiceAPI serviceApi, string projectName, string flowName, long processId = 0)
+		{
+			return await serviceApi.WorkflowManager.Create(projectName, flowName, processId);
 		}
 
 		public async static Task StartFlowAsync(Context context, string processName, Dictionary<string, object> values, string userID, string flowName = "Flow1", string AnAkisId = "", Event id = null)
@@ -1516,12 +1573,51 @@ namespace Helper
 
 			await process.SaveAndContinue();
 		}
+		public async static Task StartFlowAsync(this ServiceAPI serviceApi, string processName, Dictionary<string, object> values, string userID, string flowName = "Flow1", string AnAkisId = "", Event id = null)
+		{
+			id ??= new Event() { Id = 4 };
+
+			WorkflowInstance process = serviceApi.CreateProcess(processName, flowName, 0).Result;
+			foreach (var item in values)
+			{
+				process.Variables[item.Key] = item.Value;
+			}
+
+			process.StartingEvent = id;
+			process.SetStarterUserByUserId(userID.ToInt64()).Wait();
+
+			if (AnAkisId != "")
+				process.ParentProcessId = AnAkisId.ToInt64();
+
+			await process.SaveAndContinue();
+		}
 
 		public static long StartFlow(Context context, string processName, Dictionary<string, object> values, string userID, string flowName = "Flow1", string AnAkisId = "", Event? id = null)
 		{
 			id ??= new Event() { Id = 4 };
 
 			WorkflowInstance process = CreateProcess(context, processName, flowName, 0).Result;
+			foreach (var item in values)
+			{
+				process.Variables[item.Key] = item.Value;
+			}
+
+			process.StartingEvent = id;
+			process.SetStarterUserByUserId(userID.ToInt64()).Wait();
+
+			if (AnAkisId != "")
+				process.ParentProcessId = Convert.ToInt64(AnAkisId);
+
+			process.SaveAndContinue().Wait();
+
+
+			return process.ProcessId;
+		}
+		public static long StartFlow(this ServiceAPI serviceApi, string processName, Dictionary<string, object> values, string userID, string flowName = "Flow1", string AnAkisId = "", Event? id = null)
+		{
+			id ??= new Event() { Id = 4 };
+
+			WorkflowInstance process = serviceApi.CreateProcess(processName, flowName, 0).Result;
 			foreach (var item in values)
 			{
 				process.Variables[item.Key] = item.Value;
@@ -1570,10 +1666,40 @@ namespace Helper
 
 			return result.Result.LinkId;
 		}
-
-		internal static List<RelatedDocumentFile> GetRelatedDocuments(Context context, string processName, string formName, long documentId, string controlName)
+		public static string GetLink(this ServiceAPI serviceApi, long processID, long requestID)
 		{
-			var serviceApi = GetServiceApiInstance(context) ?? GetServiceApiInstance(context);
+			CreateLinkRequest data = new CreateLinkRequest();
+			data.EmbeddedView = false;
+			data.LinkType = 0;
+			data.Scope = new List<string> {"sysfullaccess",
+											"idefullaccess",
+											"dmfullaccess",
+											"mobilefullaccess",
+											"appsfullaccess",
+											"menufullaccess",
+											"procmanfullaccess",
+											"sysaccess",
+											"app.",
+											"web.announcement",
+											"web.announcement.read",
+											"webfullaccess",
+											"webaccess"};
+			data.UserId = 1;
+			data.Status = true;
+			data.Payload = "{ \"ProcessId\" : " + processID + ", \"RequestId\" : " + requestID + ", \"RequestType\" : 2}";
+			//data.RequestLimit = 99;
+			//data.ExpireDate = DateTimeOffset.Now.AddDays(25);
+
+			var result = serviceApi.Shared.CreateLink(data).Result;
+
+			//string returnString = Newtonsoft.Json.JsonConvert.SerializeObject(result);
+
+			return result.Result.LinkId;
+		}
+
+		public static List<RelatedDocumentFile> GetRelatedDocuments(Context context, string processName, string formName, long documentId, string controlName)
+		{
+			var serviceApi =  GetServiceApiInstance(context);
 
 			List<RelatedDocumentFile> files = new List<RelatedDocumentFile>();
 
@@ -1595,10 +1721,30 @@ namespace Helper
 
 			return files;
 		}
+		public static List<RelatedDocumentFile> GetRelatedDocuments(this ServiceAPI serviceApi, string processName, string formName, long documentId, string controlName)
+		{
 
+			List<RelatedDocumentFile> files = new();
 
+			FormInstance mainForm = serviceApi.FormManager.Create(processName, formName, documentId).Result;
 
+			var control = mainForm.Controls[controlName];
 
+			if (control == null)
+			{
+				//LogExtension.Error(controlName + " İsimli RelatedDocuments nesnesi bulunamadı.");
+				throw new ArgumentNullException(controlName + " İsimli RelatedDocuments nesnesi bulunamadı");
+			}
+			else
+			{
+				if (mainForm.Controls[controlName].Value is not null)
+				{
+					files = JsonConvert.DeserializeObject<List<RelatedDocumentFile>>(mainForm.Controls[controlName].Value.ToString());
+				}
+			}
+
+			return files;
+		}
 
 
 		public static void Bind_Related_Documents(List<RelatedDocumentFile> docs, FormInstance bindForm, string controlName = "rdEkDosya", string categoryName = "Varsayılan", string culture = "tr-TR")
@@ -1624,19 +1770,8 @@ namespace Helper
 			var resp = bindForm.Save();
 		}
 
-
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="context"></param>
-		/// <param name="processId"></param>
-		/// <param name="flowPauserName"></param>
-		/// <param name="projectName"></param>
-		/// <param name="id"></param>
-		/// <returns></returns>
-		/// <exception cref="Exception"></exception>
-		public static async Task ContinueFlowAsync(Context context, long processId, string flowPauserName, string projectName, int eventId)
+		
+		public static async Task ContinueFlowAsync(Context context, string projectName, long processId, string flowPauserName, int eventId)
 		{
 			ServiceAPI serviceAPI = GetServiceApiInstance(context);
 
@@ -1655,17 +1790,27 @@ namespace Helper
 				var continueResponse = await mainProcess.Continue();
 			}
 		}
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="context"></param>
-		/// <param name="processId"></param>
-		/// <param name="flowPauserName"></param>
-		/// <param name="projectName"></param>
-		/// <param name="id"></param>
-		/// <param name="variables"></param>
-		/// <exception cref="Exception"></exception> 
-		public static void ContinueFlow(Context context, long processId, string flowPauserName, string projectName, int eventId, Dictionary<string, string> variables = null)
+
+		public static async Task ContinueFlowAsync(this ServiceAPI serviceApi, string projectName, long processId, string flowPauserName,  int eventId)
+		{
+
+			var flowRequests = serviceApi.WorkflowManager.GetWaitingProcessRequests(processId).Result;
+			var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
+
+
+			if (flowPauser.Any() == false)
+				throw new Exception("Üst akışı devam ettirmek için durdurucuda beklemesi lazım;" + processId + "-" + flowPauserName);
+
+			else
+			{
+				var mainProcess = serviceApi.WorkflowManager.Create(projectName, "Flow1", processId, flowPauser.FirstOrDefault().RequestId).Result;
+				mainProcess.StartingEvent = new Event() { Id = eventId };
+
+				var continueResponse = await mainProcess.Continue();
+			}
+		}
+
+		public static void ContinueFlow(Context context, string projectName, long processId, string flowPauserName,  int eventId, Dictionary<string, string> variables = null)
 		{
 			ServiceAPI serviceAPI = GetServiceApiInstance(context);
 
@@ -1694,6 +1839,35 @@ namespace Helper
 
 			}
 		}
+
+		public static void ContinueFlow(this ServiceAPI serviceApi,string projectName, long processId, string flowPauserName, int eventId, Dictionary<string, string> variables = null)
+		{
+
+			var flowRequests = serviceApi.WorkflowManager.GetWaitingProcessRequests(processId).Result;
+			var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
+
+
+			//LogExtension.Warning(flowRequests.Result,context);
+			if (flowPauser.Any() == false)
+				throw new Exception("Üst akışı devam ettirmek için durdurucuda beklemesi lazım;" + processId + "-" + flowPauserName);
+
+
+			else
+			{
+				var mainProcess = serviceApi.WorkflowManager.Create(projectName, "Flow1", processId, flowPauser.FirstOrDefault().RequestId).Result;
+				if (variables != null)
+				{
+					foreach (var variable in variables)
+					{
+						mainProcess.Variables[variable.Key] = variable.Value;
+					}
+				}
+				mainProcess.StartingEvent = new Event() { Id = eventId };
+
+				var continueResponse = mainProcess.Continue().Result;
+
+			}
+		}
 		public static bool CheckFlowPauser(Context context, long processId, string flowPauserName)
 		{
 			ServiceAPI serviceAPI = GetServiceApiInstance(context);
@@ -1708,7 +1882,18 @@ namespace Helper
 
 		}
 
-		#region Extensions
+		public static bool CheckFlowPauser(this ServiceAPI serviceApi, long processId, string flowPauserName)
+		{
+			var flowRequests = serviceApi.WorkflowManager.GetWaitingProcessRequests(processId).Result;
+			var flowPauser = flowRequests.Result.Where(x => x.StepName == flowPauserName);
+
+			if (flowPauser.Any() == true)
+				return true;
+			else
+				return false;
+
+		}
+
 
 		public static GridDataRowCell GetCellByName(this GridDataRow gridDataRow, string name)
 		{
@@ -1717,7 +1902,7 @@ namespace Helper
 			return cell is null ? throw new ArgumentNullException($"GridDataRowExtension.Error, A cell named {name} could not be found!") : cell;
 		}
 
-		#endregion
+		
 	}
 	#endregion
 
